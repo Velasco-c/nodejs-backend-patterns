@@ -1,0 +1,28 @@
+{
+  "name": "04-notes-management-solid",
+  "version": "1.0.0",
+  "description": "Registro y administración de notas escolares con metodo solid.",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Velasco-c/nodejs-backend-patterns.git"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript",
+    "oop",
+    "backend",
+    "grades",
+    "management"
+  ],
+  "author": "Velasco-c",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Velasco-c/nodejs-backend-patterns/issues"
+  },
+  "homepage": "https://github.com/Velasco-c/nodejs-backend-patterns#readme"
+}
