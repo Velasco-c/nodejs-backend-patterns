@@ -113,6 +113,10 @@ export async function createCourseSchedule(rl) {
         });
 
         store.courseSchedules.push(courseSchedule);
+        store.notify({
+            type: "courseSchedule.created",
+            data: courseSchedule
+        });
 
         const formatter = new CourseScheduleFormatter();
 

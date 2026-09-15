@@ -23,6 +23,10 @@ export async function createCity(rl) {
         });
 
         store.cities.push(city);
+        store.notify({
+            type: "city.created",
+            data: city
+        });
 
         const formatter = new CityFormatter();
 

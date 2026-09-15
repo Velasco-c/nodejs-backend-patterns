@@ -84,6 +84,10 @@ export async function createInscription(rl) {
         });
 
         store.inscriptions.push(inscription);
+        store.notify({
+            type: "inscription.created",
+            data: inscription
+        });
 
         const formatter = new InscriptionFormatter();
 

@@ -9,5 +9,23 @@ export const store = {
     topics: [],
     courseSchedules: [],
     inscriptions: [],
-    rates: []
+    rates: [],
+
+    observers: [],
+
+    addObserver(observer) {
+        this.observers.push(observer);
+    },
+
+    removeObserver(observer) {
+        this.observers = this.observers.filter(
+            currentObserver => currentObserver !== observer
+        );
+    },
+
+    notify(event) {
+        this.observers.forEach(observer => {
+            observer.update(event);
+        });
+    }
 };

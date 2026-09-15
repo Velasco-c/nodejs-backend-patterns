@@ -1,4 +1,6 @@
 import * as readline from "readline/promises";
+import { store } from "./data/store.js";
+import LoggerObserver from "./observers/logger-observer.js";
 
 import { createIdentificationType } from "./actions/create-identification-type.js";
 import { createCity } from "./actions/create-city.js";
@@ -17,6 +19,8 @@ const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
+const loggerObserver = new LoggerObserver();
+store.addObserver(loggerObserver);
 
 let opc = "";
 

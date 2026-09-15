@@ -57,6 +57,10 @@ export async function createTeacher(rl) {
         });
 
         store.teachers.push(teacher);
+        store.notify({
+            type: "teacher.created",
+            data: teacher
+        });
 
         const formatter = new TeacherFormatter();
 

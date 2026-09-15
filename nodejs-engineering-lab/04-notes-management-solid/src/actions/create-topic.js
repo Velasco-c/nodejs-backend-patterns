@@ -58,6 +58,10 @@ export async function createTopic(rl) {
         });
 
         store.topics.push(topic);
+        store.notify({
+            type: "topic.created",
+            data: topic
+        });
 
         const formatter = new TopicFormatter();
 

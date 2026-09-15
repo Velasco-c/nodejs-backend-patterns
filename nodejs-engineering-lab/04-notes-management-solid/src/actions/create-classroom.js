@@ -34,6 +34,10 @@ export async function createClassroom(rl) {
         });
 
         store.classrooms.push(classroom);
+        store.notify({
+            type: "classroom.created",
+            data: classroom
+        });
 
         const formatter = new ClassroomFormatter();
 

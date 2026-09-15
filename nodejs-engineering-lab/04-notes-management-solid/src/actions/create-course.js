@@ -38,6 +38,10 @@ export async function createCourse(rl) {
         });
 
         store.courses.push(course);
+        store.notify({
+            type: "course.created",
+            data: course
+        });
 
         const formatter = new CourseFormatter();
 

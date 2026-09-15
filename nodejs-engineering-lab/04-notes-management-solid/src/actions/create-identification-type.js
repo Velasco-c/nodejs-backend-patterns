@@ -25,6 +25,10 @@ export async function createIdentificationType(rl) {
         });
 
         store.identificationTypes.push(identificationType);
+        store.notify({
+            type: "identificationType.created",
+            data: identificationType
+        });
 
         const formatter = new IdentificationTypeFormatter();
 

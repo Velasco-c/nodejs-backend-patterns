@@ -90,6 +90,10 @@ export async function createStudent(rl) {
         });
 
         store.students.push(student);
+        store.notify({
+            type: "student.created",
+            data: student
+        });
 
         const formatter = new StudentFormatter();
 

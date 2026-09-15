@@ -55,6 +55,10 @@ export async function createRate(rl) {
         });
 
         store.rates.push(newRate);
+        store.notify({
+            type: "rate.created",
+            data: rate
+        });
 
         const formatter = new RateFormatter();
 
