@@ -9,8 +9,8 @@
         {
             "id": 2,
             "code": "C01",
-            "name": "DPI",
-            "description": "Numero de Identifiacion Personal"
+            "name": "Carné estudiantil",
+            "description": "Identificación interna del estudiante"
         }
     ],
     "cities": [
@@ -18,6 +18,11 @@
             "id": 1,
             "code": "GUA",
             "name": "Guatemala"
+        },
+        {
+            "id": 2,
+            "code": "MIX",
+            "name": "Mixco"
         }
     ],
     "students": [
@@ -33,9 +38,31 @@
             "email": "carlos@example.com",
             "address": "Ciudad de Guatemala",
             "cityId": 1
+        },
+        {
+            "id": 2,
+            "code": "STU-002",
+            "firstName": "Ana",
+            "lastName": "López",
+            "identificationTypeId": 2,
+            "identificationNumber": "CARNE-002",
+            "gender": "F",
+            "birthdate": "2001-05-15",
+            "email": "ana@example.com",
+            "address": "Zona 1 de Mixco",
+            "cityId": 2
         }
     ],
-    "teachers": [],
+    "teachers": [
+        {
+            "id": 1,
+            "firstName": "Luis",
+            "lastName": "Martínez",
+            "identificationTypeId": 1,
+            "identificationNumber": "9876543210101",
+            "email": "luis.martinez@example.com"
+        }
+    ],
     "courses": [
         {
             "id": 1,
@@ -44,11 +71,82 @@
             "intensity": 40,
             "weight": 1,
             "active": true
+        },
+        {
+            "id": 2,
+            "code": "SQL-001",
+            "description": "Bases de datos con PostgreSQL",
+            "intensity": 32,
+            "weight": 1,
+            "active": true
         }
     ],
-    "classrooms": [],
-    "topics": [],
-    "courseSchedules": [],
-    "inscriptions": [],
-    "rates": []
+    "classrooms": [
+        {
+            "id": 1,
+            "code": "AULA-101",
+            "description": "Laboratorio de programación",
+            "capacity": 25,
+            "active": true
+        }
+    ],
+    "topics": [
+        {
+            "id": 1,
+            "courseId": 1,
+            "code": "NODE-T01",
+            "title": "Introducción a Node.js",
+            "description": "Fundamentos del entorno de ejecución Node.js",
+            "active": true
+        },
+        {
+            "id": 2,
+            "courseId": 2,
+            "code": "SQL-T01",
+            "title": "Consultas SQL",
+            "description": "Consultas básicas y relaciones entre tablas",
+            "active": true
+        }
+    ],
+    "courseSchedules": [
+        {
+            "id": 1,
+            "courseId": 1,
+            "teacherId": 1,
+            "classroomId": 1,
+            "startDate": "2026-09-21T08:00:00.000Z",
+            "endDate": "2026-09-21T10:00:00.000Z",
+            "active": true
+        }
+    ],
+    "inscriptions": [
+        {
+            "id": 1,
+            "courseScheduleId": 1,
+            "studentId": 1,
+            "registerDate": "2026-09-15",
+            "active": true
+        },
+        {
+            "id": 2,
+            "courseScheduleId": 1,
+            "studentId": 2,
+            "registerDate": "2026-09-15",
+            "active": true
+        }
+    ],
+    "rates": [
+        {
+            "id": 1,
+            "inscriptionId": 1,
+            "rate": 92,
+            "comments": "Excelente participación y comprensión de los temas"
+        },
+        {
+            "id": 2,
+            "inscriptionId": 2,
+            "rate": 88,
+            "comments": "Buen desempeño durante las actividades prácticas"
+        }
+    ]
 }

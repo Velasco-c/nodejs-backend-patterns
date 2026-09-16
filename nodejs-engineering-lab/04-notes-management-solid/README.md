@@ -1,25 +1,50 @@
 # Notes Management — SOLID
 
-Aplicación de consola desarrollada con **Node.js y JavaScript ES Modules** para aplicar principios SOLID sobre el sistema de gestión de notas construido en el Review 03.
+Aplicación de consola desarrollada con **Node.js y JavaScript ES Modules** para aplicar principios SOLID, Programación Orientada a Objetos, patrones de diseño y separación de responsabilidades sobre un sistema de gestión académica.
 
-El proyecto conserva el modelo de entidades del ejercicio anterior, pero reorganiza la lógica para mantener el código más limpio, separado y fácil de mantener.
+El proyecto parte del sistema desarrollado en el Review 03 y evoluciona su arquitectura para separar:
+
+* Casos de uso.
+* Modelos de dominio.
+* Validaciones.
+* Construcción de entidades.
+* Presentación.
+* Estado de la aplicación.
+* Eventos.
+* Persistencia.
+* Serialización y deserialización.
+
+La aplicación utiliza un archivo JSON como mecanismo de persistencia local, sin depender de una base de datos ni de paquetes externos.
 
 ---
 
 ## 1. Objetivo
 
-Aplicar los principios **SOLID** sobre la lógica del sistema de notas, separando las responsabilidades principales de la aplicación.
+El objetivo principal es aplicar principios de diseño de software sobre una aplicación funcional sin agregar abstracciones innecesarias.
 
-El objetivo no es crear una gran cantidad de abstracciones innecesarias, sino evitar que un único archivo tenga que encargarse de:
+La arquitectura evita concentrar todas las responsabilidades en `app.js`.
 
-* Crear objetos.
-* Validar datos.
-* Mostrar información.
-* Mantener el estado.
-* Gestionar relaciones.
-* Controlar el menú.
+Cada componente tiene una función específica:
 
-La aplicación funciona completamente en memoria mediante un `store`.
+```text
+app.js
+    ↓
+Actions
+    ↓
+Factories
+    ↓
+Validators
+    ↓
+Models
+    ↓
+Store
+    ↓
+Observers
+    ↓
+Persistence
+```
+
+Esto permite mantener el código organizado, facilitar las modificaciones y reducir el acoplamiento entre componentes.
 
 ---
 
@@ -31,12 +56,18 @@ La aplicación funciona completamente en memoria mediante un `store`.
 * `readline/promises`
 * Programación Orientada a Objetos
 * Principios SOLID
+* Patrón Factory
+* Patrón Observer
+* Persistencia mediante JSON
+* Node.js File System (`node:fs`)
+* Node.js URL (`node:url`)
+* Node.js Path (`node:path`)
 
 No se utilizan dependencias externas.
 
 ---
 
-## 3. Estructura del proyecto
+# 3. Estructura del proyecto
 
 ```text
 04-notes-management-solid
@@ -58,6 +89,9 @@ No se utilizan dependencias externas.
     │   └── show-relations.js
     │
     ├── app.js
+    │
+    ├── config
+    │   └── dependencies.js
     │
     ├── data
     │   └── store.js
@@ -98,6 +132,20 @@ No se utilizan dependencias externas.
     │   ├── teacher.js
     │   └── topic.js
     │
+    ├── observers
+    │   ├── logger-observer.js
+    │   ├── observer.js
+    │   └── persistence-observer.js
+    │
+    ├── persistence
+    │   ├── deserializer.js
+    │   ├── json-storage.js
+    │   ├── persistence-service.js
+    │   └── serializer.js
+    │
+    ├── storage
+    │   └── data.json
+    │
     └── validators
         ├── city-validator.js
         ├── classroom-validator.js
@@ -113,15 +161,15 @@ No se utilizan dependencias externas.
 
 ---
 
-## 4. Responsabilidad de cada carpeta
+# 4. Responsabilidad de cada componente
 
-### `models`
+## `models`
 
-Contiene las entidades del sistema.
-
-Ejemplos:
+Contiene las entidades del dominio.
 
 ```text
+IdentificationType
+City
 Student
 Teacher
 Course
@@ -132,33 +180,31 @@ Inscription
 Rate
 ```
 
-Los modelos representan los datos y sus relaciones mediante objetos.
+Los modelos representan los datos y las relaciones entre las entidades.
 
 ---
 
-### `validators`
+## `validators`
 
-Cada entidad tiene su propio validador.
+Contiene las reglas de validación de cada entidad.
 
 Ejemplo:
 
 ```text
 Student
-   ↓
+    ↓
 StudentValidator
 ```
 
-La validación se mantiene fuera del modelo y fuera del menú.
-
-Esto permite que las reglas de validación tengan una responsabilidad independiente.
+La validación permanece separada del modelo y de la interfaz de consola.
 
 ---
 
-### `factories`
+## `factories`
 
-Cada entidad tiene una Factory encargada de construir su objeto.
+Las factories son responsables de construir las entidades.
 
-El flujo es:
+El flujo general es:
 
 ```text
 Action
@@ -170,7 +216,7 @@ Validator
 Model
 ```
 
-Por ejemplo:
+Ejemplo:
 
 ```text
 createStudent()
@@ -182,31 +228,13 @@ StudentValidator
 Student
 ```
 
-Esto evita construir directamente los modelos desde el menú.
+Las factories también permiten recibir validadores como dependencias.
 
 ---
 
-### `formatters`
+## `actions`
 
-Los formatters preparan los objetos para mostrarlos en consola.
-
-Por ejemplo:
-
-```text
-Student
-   ↓
-StudentFormatter
-   ↓
-Objeto listo para mostrar
-```
-
-Esto evita mezclar la lógica de presentación con los modelos.
-
----
-
-### `actions`
-
-Cada operación del sistema tiene su propio archivo.
+Cada operación de la aplicación tiene su propia action.
 
 Ejemplos:
 
@@ -219,171 +247,271 @@ list-information.js
 show-relations.js
 ```
 
-Cada action representa una operación concreta de la aplicación.
-
-Todas las acciones son funciones `async` y reciben la interfaz `readline`.
+Las actions coordinan el caso de uso, pero no contienen la definición de los modelos ni las reglas de validación.
 
 ---
 
-### `data/store.js`
+## `formatters`
 
-Mantiene el estado de la aplicación en memoria.
-
-```js
-export const store = {
-
-    identificationTypes: [],
-    cities: [],
-    students: [],
-    teachers: [],
-    courses: [],
-    classrooms: [],
-    topics: [],
-    courseSchedules: [],
-    inscriptions: [],
-    rates: []
-};
-```
-
-No se utiliza una base de datos en este ejercicio.
-
----
-
-### `app.js`
-
-Es el punto de entrada de la aplicación.
-
-Su responsabilidad se mantiene pequeña:
+Preparan la información para ser mostrada en consola.
 
 ```text
-Mostrar menú
-     ↓
-Leer opción
-     ↓
-Ejecutar action
-     ↓
-Esperar
-     ↓
-Volver al menú
+Model
+   ↓
+Formatter
+   ↓
+Consola
 ```
 
-El `app.js` no contiene la lógica de creación, validación o presentación de las entidades.
+Esto mantiene separada la presentación de la lógica del dominio.
 
 ---
 
-# 5. ¿Por qué se separó de esta manera?
+## `data/store.js`
 
-La principal razón es mantener el código **limpio, organizado y fácil de mantener**.
+Mantiene el estado actual de la aplicación en memoria.
 
-En una aplicación pequeña sería posible colocar toda la lógica en `app.js`, pero rápidamente terminaríamos con un archivo encargado de demasiadas responsabilidades.
+El store contiene:
 
-La separación permite que cada componente tenga un propósito claro:
+```text
+identificationTypes
+cities
+students
+teachers
+courses
+classrooms
+topics
+courseSchedules
+inscriptions
+rates
+```
+
+Además, el store implementa el mecanismo de publicación de eventos utilizado por los observers.
+
+```text
+Store
+  │
+  └── notify(event)
+          │
+          ├── LoggerObserver
+          │
+          └── PersistenceObserver
+```
+
+---
+
+## `observers`
+
+Implementa el patrón Observer.
+
+### `LoggerObserver`
+
+Reacciona a los eventos generados por el store y muestra información del evento:
+
+```text
+[EVENT] student.created
+```
+
+### `PersistenceObserver`
+
+Reacciona a los eventos y solicita guardar el estado actual:
+
+```text
+Store
+  ↓
+PersistenceObserver
+  ↓
+PersistenceService
+  ↓
+data.json
+```
+
+Esto permite que el store no tenga que conocer directamente el mecanismo de almacenamiento.
+
+---
+
+## `config/dependencies.js`
+
+Funciona como punto central de composición de dependencias.
+
+Se encarga de:
+
+1. Crear las factories.
+2. Crear el servicio de persistencia.
+3. Cargar los datos almacenados.
+4. Restaurar el store.
+5. Crear los observers.
+6. Registrar los observers en el store.
+
+El flujo inicial es:
 
 ```text
 app.js
-   → controla el menú
-
-actions
-   → ejecutan operaciones
-
-factories
-   → construyen entidades
-
-validators
-   → validan datos
-
-models
-   → representan entidades
-
-formatters
-   → preparan información
-
-store
-   → mantiene el estado
+   ↓
+dependencies.js
+   ↓
+Factories
+   ↓
+PersistenceService
+   ↓
+data.json
+   ↓
+Deserializer
+   ↓
+Store
+   ↓
+Observers
 ```
 
-De esta forma, si posteriormente cambia una regla de validación, no es necesario modificar el menú.
-
-Si cambia la forma de mostrar una entidad, no es necesario modificar el modelo.
-
-Si cambia la forma de crear una entidad, no es necesario modificar `app.js`.
-
-Esta separación ayuda principalmente a mantener **alta cohesión y bajo acoplamiento**.
+Esto evita llenar `app.js` con lógica de inicialización.
 
 ---
 
-# 6. Principios SOLID aplicados
+# 5. Persistencia
 
-## SRP — Single Responsibility Principle
+La aplicación no utiliza un motor de base de datos.
 
-Cada componente tiene una responsabilidad específica.
-
-Ejemplo:
+En su lugar utiliza persistencia local mediante:
 
 ```text
-StudentValidator
-    → validar Student
-
-StudentFactory
-    → crear Student
-
-StudentFormatter
-    → preparar Student para mostrar
-
-createStudent()
-    → ejecutar el caso de uso de crear Student
+src/storage/data.json
 ```
 
-No se concentra toda la responsabilidad en una única clase o archivo.
+La persistencia está separada en varias responsabilidades.
+
+```text
+PersistenceObserver
+        ↓
+PersistenceService
+        ↓
+   ┌────┴────┐
+   ↓         ↓
+Serializer  JsonStorage
+   ↓         ↓
+   └────┬────┘
+        ↓
+    data.json
+```
+
+Para recuperar los datos:
+
+```text
+data.json
+    ↓
+JsonStorage
+    ↓
+PersistenceService
+    ↓
+Deserializer
+    ↓
+Factories
+    ↓
+Modelos
+    ↓
+Store
+```
 
 ---
 
-## OCP — Open/Closed Principle
+# 6. `JsonStorage`
 
-Las funcionalidades están separadas por componentes.
+`JsonStorage` se encarga exclusivamente de la interacción con el sistema de archivos.
 
-Agregar una nueva operación permite crear una nueva action sin convertir `app.js` en un archivo cada vez más grande.
+Responsabilidades:
 
----
+* Guardar JSON.
+* Leer JSON.
+* Crear el directorio de almacenamiento si no existe.
+* Detectar si el archivo todavía no existe.
+* Detectar JSON corrupto.
 
-## LSP — Liskov Substitution Principle
+No conoce las entidades del sistema.
 
-Los componentes utilizados por las factories mantienen contratos sencillos y coherentes.
-
-Los validators reciben datos y realizan la validación antes de construir las entidades.
-
----
-
-## ISP — Interface Segregation Principle
-
-JavaScript no utiliza interfaces nativas como otros lenguajes, por lo que se mantienen responsabilidades pequeñas mediante clases y funciones específicas.
-
-No se crea una clase gigantesca que obligue a todas las entidades a implementar funcionalidades que no necesitan.
+Solo trabaja con datos y una ruta de archivo.
 
 ---
 
-## DIP — Dependency Inversion Principle
+# 7. `Serializer`
 
-Las factories reciben el validator como dependencia:
+El serializer convierte las entidades del sistema en datos simples que pueden almacenarse.
 
-```js
-constructor(validator = new StudentValidator()) {
-    this.#validator = validator;
+Las relaciones no se guardan como objetos completos.
+
+Por ejemplo:
+
+```text
+Student
+├── identificationType
+└── city
+```
+
+se convierte conceptualmente en:
+
+```json
+{
+    "id": 1,
+    "identificationTypeId": 1,
+    "cityId": 1
 }
 ```
 
-Esto permite utilizar otro validator compatible sin modificar la lógica interna de la factory.
+Esto evita duplicar objetos y evita almacenar grafos de objetos innecesariamente complejos.
 
 ---
 
-# 7. Relaciones entre entidades
+# 8. `Deserializer`
 
-El sistema mantiene las relaciones utilizando referencias entre objetos.
+El deserializer realiza el proceso inverso.
+
+```text
+JSON
+ ↓
+Datos simples
+ ↓
+Factories
+ ↓
+Modelos
+ ↓
+Relaciones
+```
+
+Utiliza `Map` para resolver las relaciones mediante sus identificadores.
+
+Por ejemplo:
+
+```text
+student.cityId
+      ↓
+cityById
+      ↓
+City
+```
+
+También reconstruye las relaciones inversas:
+
+```text
+Course
+ ├── topics[]
+ └── schedules[]
+        └── inscriptions[]
+                └── rates[]
+```
+
+De esta forma, las relaciones siguen disponibles después de cerrar y volver a iniciar la aplicación.
+
+---
+
+# 9. Relaciones entre entidades
+
+Las relaciones principales son:
 
 ```text
 Student
 ├── IdentificationType
 └── City
+
+Teacher
+└── IdentificationType
 
 Topic
 └── Course
@@ -401,41 +529,236 @@ Rate
 └── Inscription
 ```
 
-Esto permite consultar directamente las relaciones:
+Las relaciones inversas también se reconstruyen al cargar la información:
 
-```js
-student.city
-student.identificationType
+```text
+Course
+├── topics[]
+└── schedules[]
 
-topic.course
+CourseSchedule
+└── inscriptions[]
 
-courseSchedule.course
-courseSchedule.teacher
-courseSchedule.classroom
+Inscription
+└── rates[]
+```
 
-inscription.student
-inscription.courseSchedule
+Cadena completa:
 
-rate.inscription
+```text
+Course
+   │
+   ├── Topic
+   │
+   └── CourseSchedule
+            │
+            └── Inscription
+                    │
+                    └── Rate
 ```
 
 ---
 
-# 8. Requisitos
+# 10. Flujo general de creación
 
-Se necesita tener instalado:
+Ejemplo: crear un estudiante.
+
+```text
+Usuario
+   ↓
+app.js
+   ↓
+createStudent()
+   ↓
+StudentFactory
+   ↓
+StudentValidator
+   ↓
+Student
+   ↓
+store.students
+   ↓
+store.notify()
+   ├── LoggerObserver
+   └── PersistenceObserver
+              ↓
+       PersistenceService
+              ↓
+          Serializer
+              ↓
+          JsonStorage
+              ↓
+          data.json
+```
+
+La creación de la entidad y su persistencia permanecen separadas.
+
+---
+
+# 11. Flujo de recuperación
+
+Al iniciar la aplicación:
+
+```text
+app.js
+   ↓
+dependencies.js
+   ↓
+PersistenceService
+   ↓
+JsonStorage
+   ↓
+data.json
+   ↓
+Deserializer
+   ↓
+Factories
+   ↓
+Modelos
+   ↓
+Reconstrucción de relaciones
+   ↓
+Store
+```
+
+Esto permite cerrar la aplicación y conservar los datos para la siguiente ejecución.
+
+---
+
+# 12. Ruta de almacenamiento
+
+La aplicación obtiene la ruta de `data.json` utilizando la ubicación del módulo:
+
+```js
+const dataPath = fileURLToPath(
+    new URL("../storage/data.json", import.meta.url)
+);
+```
+
+Esto evita depender del directorio desde el cual se ejecuta Node.js.
+
+La estructura utilizada es:
+
+```text
+src/
+├── config/
+│   └── dependencies.js
+│
+├── persistence/
+│   └── ...
+│
+└── storage/
+    └── data.json
+```
+
+---
+
+# 13. Principios SOLID aplicados
+
+## SRP — Single Responsibility Principle
+
+Cada componente tiene una responsabilidad concreta.
+
+```text
+Validator
+    → validar
+
+Factory
+    → construir
+
+Model
+    → representar entidad
+
+Formatter
+    → preparar presentación
+
+Action
+    → ejecutar caso de uso
+
+Store
+    → mantener estado y publicar eventos
+
+Observer
+    → reaccionar a eventos
+
+Serializer
+    → convertir modelos a datos persistibles
+
+Deserializer
+    → reconstruir modelos
+
+JsonStorage
+    → interactuar con archivos
+```
+
+---
+
+## OCP — Open/Closed Principle
+
+Las operaciones están separadas.
+
+Agregar una nueva operación permite crear una nueva action sin concentrar toda la lógica en `app.js`.
+
+Los observers también permiten agregar nuevos comportamientos ante eventos sin modificar el store para cada nuevo comportamiento.
+
+---
+
+## LSP — Liskov Substitution Principle
+
+Los observers comparten un contrato común:
+
+```text
+Observer
+    ↓
+update()
+```
+
+Esto permite que diferentes observers reaccionen a los eventos del store.
+
+---
+
+## ISP — Interface Segregation Principle
+
+JavaScript no utiliza interfaces nativas como otros lenguajes.
+
+En lugar de crear una interfaz enorme, el proyecto mantiene responsabilidades pequeñas y específicas.
+
+---
+
+## DIP — Dependency Inversion Principle
+
+Las factories pueden recibir sus validators como dependencias.
+
+Además, el mecanismo de persistencia está separado:
+
+```text
+PersistenceService
+        ↓
+JsonStorage
+```
+
+Esto permite que la lógica de persistencia no esté distribuida por las actions o los modelos.
+
+---
+
+# 14. Requisitos
+
+Se necesita una versión moderna de Node.js con soporte para:
+
+* ES Modules.
+* `readline/promises`.
+
+Comprobar la versión:
 
 ```bash
 node --version
 ```
 
-Se recomienda utilizar una versión moderna de Node.js con soporte para ES Modules y `readline/promises`.
-
-No es necesario instalar paquetes externos.
+No es necesario instalar dependencias externas.
 
 ---
 
-# 9. Preparar el proyecto
+# 15. Preparar el proyecto
 
 Desde la raíz del repositorio:
 
@@ -443,49 +766,11 @@ Desde la raíz del repositorio:
 cd nodejs-engineering-lab/04-notes-management-solid
 ```
 
-Verificar el contenido:
-
-```bash
-tree
-```
-
-El proyecto debe contener:
-
-```text
-package.json
-README.md
-src/
-```
+También se puede ejecutar directamente desde la raíz del repositorio.
 
 ---
 
-# 10. Configuración de Node.js
-
-El proyecto utiliza ES Modules mediante:
-
-```json
-{
-    "type": "module"
-}
-```
-
-Esto permite utilizar imports como:
-
-```js
-import { StudentFactory } from "./factories/student-factory.js";
-```
-
-y exports como:
-
-```js
-export async function createStudent(rl) {
-    // ...
-}
-```
-
----
-
-# 11. Ejecutar la aplicación
+# 16. Ejecutar la aplicación
 
 Desde:
 
@@ -499,17 +784,19 @@ ejecutar:
 node src/app.js
 ```
 
-También puede ejecutarse directamente desde la raíz del repositorio:
+También:
 
 ```bash
 node nodejs-engineering-lab/04-notes-management-solid/src/app.js
 ```
 
+La ruta de persistencia no depende del directorio actual desde el que se ejecuta Node.js.
+
 ---
 
-# 12. Menú principal
+# 17. Menú principal
 
-Al iniciar la aplicación se muestra:
+La aplicación proporciona las siguientes operaciones:
 
 ```text
 ============= NOTES MANAGEMENT - SOLID =============
@@ -531,9 +818,9 @@ Al iniciar la aplicación se muestra:
 
 ---
 
-# 13. Orden recomendado de uso
+# 18. Orden recomendado
 
-Como existen relaciones entre las entidades, se recomienda crearlas en este orden:
+Debido a las relaciones existentes, se recomienda crear las entidades en este orden:
 
 ```text
 1. Tipo de identificación
@@ -548,7 +835,7 @@ Como existen relaciones entre las entidades, se recomienda crearlas en este orde
 10. Nota
 ```
 
-Después pueden utilizarse:
+Después:
 
 ```text
 11. Listar información
@@ -557,105 +844,7 @@ Después pueden utilizarse:
 
 ---
 
-# 14. Ejemplo de flujo
-
-### Crear tipo de identificación
-
-```text
-1
-```
-
-```text
-Código: cc
-Nombre: Cedula de Ciudadania
-Descripción: Documento de identificacion para ciudadanos
-```
-
-### Crear ciudad
-
-```text
-2
-```
-
-```text
-Código: GUA
-Nombre: Guatemala
-```
-
-### Crear estudiante
-
-```text
-3
-```
-
-El estudiante puede seleccionar las entidades existentes:
-
-```text
-TIPOS DE IDENTIFICACIÓN:
-1. cc - Cedula de Ciudadania
-
-CIUDADES:
-1. GUA - Guatemala
-```
-
-### Crear curso
-
-```text
-5
-```
-
-### Crear aula
-
-```text
-6
-```
-
-### Crear tema
-
-```text
-7
-```
-
-El tema se relaciona con un curso existente.
-
-### Crear horario
-
-```text
-8
-```
-
-El horario relaciona:
-
-```text
-Curso
-Profesor
-Aula
-```
-
-### Crear inscripción
-
-```text
-9
-```
-
-La inscripción relaciona:
-
-```text
-Estudiante
-Horario
-```
-
-### Registrar nota
-
-```text
-10
-```
-
-La nota se relaciona con una inscripción existente.
-
----
-
-# 15. Listar información
+# 19. Listar información
 
 La opción:
 
@@ -663,13 +852,26 @@ La opción:
 11
 ```
 
-muestra las entidades almacenadas en `store`.
+muestra la información almacenada en el `store`.
 
-Los datos se pasan primero por sus respectivos formatters para separar la presentación de los modelos.
+Los objetos son procesados mediante sus respectivos formatters antes de mostrarse en consola.
+
+Ejemplo:
+
+```text
+ESTUDIANTES
+
+{
+    id: 1,
+    code: 'STU-001',
+    firstName: 'Carlos',
+    lastName: 'Velasco'
+}
+```
 
 ---
 
-# 16. Ver relaciones
+# 20. Ver relaciones
 
 La opción:
 
@@ -677,7 +879,7 @@ La opción:
 12
 ```
 
-muestra las relaciones creadas entre las entidades.
+permite comprobar las relaciones entre las entidades.
 
 Ejemplo:
 
@@ -685,37 +887,37 @@ Ejemplo:
 ESTUDIANTES
 ----------------------------------------
 1. Carlos Velasco
-   Tipo de identificación: cc - Cedula de Ciudadania
+   Tipo de identificación: DPI - Documento Personal de Identificación
    Ciudad: GUA - Guatemala
 ```
 
-Otro ejemplo:
+También permite consultar relaciones académicas como:
 
 ```text
 HORARIOS
 ----------------------------------------
-1. JS001
-   Curso: Javascript
-   Profesor: Ana Lopez
-   Aula: AULA01 - Laboratorio de programacion
+1. NODE-001
+   Curso: Node.js Backend
+   Profesor: ...
+   Aula: ...
 ```
 
-Y las notas:
+y:
 
 ```text
 NOTAS
 ----------------------------------------
 1. Nota: 92
    Estudiante: Carlos Velasco
-   Curso: JS001
-   Comentarios: Excelente desempeño orientado a objetos
+   Curso: NODE-001
+   Comentarios: ...
 ```
 
 ---
 
-# 17. Manejo de errores
+# 21. Manejo de errores
 
-Las actions manejan sus propios errores mediante `try/catch`.
+Las actions manejan errores mediante `try/catch`.
 
 Ejemplo:
 
@@ -730,74 +932,128 @@ try {
 }
 ```
 
-Las validaciones son responsabilidad de los validators.
+Las reglas de validación pertenecen a los validators.
 
-Por ejemplo, una nota fuera del rango permitido:
+Por ejemplo:
 
 ```text
+RateValidator
+    ↓
 Nota < 0
 Nota > 100
 ```
 
-produce un error desde:
+produce un error de validación sin trasladar esa responsabilidad a `app.js`.
+
+La persistencia también controla situaciones como:
 
 ```text
-RateValidator
+data.json inexistente
+data.json corrupto
 ```
-
-y no desde `app.js`.
 
 ---
 
-# 18. Flujo general de una operación
+# 22. Persistencia y recuperación
 
-Por ejemplo, crear un estudiante:
+La persistencia puede comprobarse mediante el siguiente flujo:
 
 ```text
-Usuario
-   │
-   ▼
-app.js
-   │
-   ▼
-createStudent()
-   │
-   ▼
-StudentFactory
-   │
-   ▼
-StudentValidator
-   │
-   ▼
-Student
-   │
-   ▼
-store.students
-   │
-   ▼
-StudentFormatter
-   │
-   ▼
-Consola
+1. Ejecutar la aplicación.
+2. Crear una entidad.
+3. Salir.
+4. Volver a ejecutar la aplicación.
+5. Seleccionar "Listar información".
+6. Comprobar que la entidad continúa disponible.
 ```
 
-Esto permite mantener cada parte del código enfocada en una responsabilidad concreta.
+También deben conservarse las relaciones reconstruibles entre las entidades.
+
+Ejemplo:
+
+```text
+Crear:
+
+Course
+   ↓
+CourseSchedule
+   ↓
+Inscription
+   ↓
+Rate
+
+Cerrar aplicación
+
+        ↓
+
+Volver a abrir
+
+        ↓
+
+Restaurar relaciones
+```
 
 ---
 
-# 19. Resultado
+# 23. Resultado
 
-El Review 04 toma la aplicación del Review 03 y reorganiza su arquitectura para trabajar con una separación de responsabilidades más clara.
+El Review 04 evoluciona el sistema de gestión de notas hacia una arquitectura modular basada en responsabilidades separadas.
 
-La estructura final permite:
+La implementación permite:
 
-* Mantener `app.js` pequeño.
-* Separar cada caso de uso.
-* Centralizar el estado en `store.js`.
-* Separar validación de creación.
-* Separar creación de presentación.
-* Mantener las relaciones entre objetos.
-* Facilitar futuras modificaciones.
-* Reducir el acoplamiento entre componentes.
+* Mantener `app.js` enfocado en el menú.
+* Separar los casos de uso mediante actions.
+* Validar las entidades mediante validators.
+* Construir entidades mediante factories.
+* Representar el dominio mediante models.
+* Separar la presentación mediante formatters.
+* Centralizar el estado mediante `store.js`.
+* Implementar eventos mediante Observer.
+* Registrar eventos mediante `LoggerObserver`.
+* Persistir cambios mediante `PersistenceObserver`.
+* Serializar entidades antes de almacenarlas.
+* Deserializar entidades al iniciar la aplicación.
+* Reconstruir relaciones directas e inversas.
+* Mantener los datos en `data.json`.
+* Evitar dependencias externas.
+* Mantener la arquitectura preparada para futuras modificaciones del mecanismo de almacenamiento.
 
-La intención principal de esta implementación es aplicar SOLID de forma práctica, manteniendo el código **limpio, organizado y mantenible**, sin agregar abstracciones que no aporten una responsabilidad real.
+La persistencia actual utiliza JSON como solución local de almacenamiento. Esto permite practicar el ciclo completo:
+
+```text
+Modelo
+   ↓
+Store
+   ↓
+Evento
+   ↓
+Observer
+   ↓
+PersistenceService
+   ↓
+Serializer
+   ↓
+JsonStorage
+   ↓
+data.json
+```
+
+y posteriormente:
+
+```text
+data.json
+   ↓
+JsonStorage
+   ↓
+Deserializer
+   ↓
+Factories
+   ↓
+Modelos
+   ↓
+Relaciones
+   ↓
+Store
+```
+
+La arquitectura mantiene como principio principal **separar responsabilidades sin agregar abstracciones que no aporten una función real**.
