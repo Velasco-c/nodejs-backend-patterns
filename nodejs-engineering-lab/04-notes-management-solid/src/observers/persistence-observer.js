@@ -9,7 +9,7 @@ export default class PersistenceObserver extends Observer {
         this.store = store;
     }
 
-    update(event) {
+    update() {
         this.persistenceService.save(this.store);
     }
 }

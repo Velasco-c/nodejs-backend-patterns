@@ -1,4 +1,5 @@
 import { store } from "../data/store.js";
+import { fileURLToPath } from "node:url";
 
 import LoggerObserver from "../observers/logger-observer.js";
 import PersistenceObserver from "../observers/persistence-observer.js";
@@ -29,8 +30,12 @@ const factories = {
     rate: new RateFactory()
 };
 
+const dataPath = fileURLToPath(
+    new URL("../storage/data.json", import.meta.url)
+);
+
 const persistenceService = new PersistenceService(
-    "./src/storage/data.json"
+    dataPath
 );
 
 const restoredStore = persistenceService.load(factories);

@@ -143,6 +143,22 @@ export default class Deserializer {
             });
         });
 
+        topics.forEach(topic => {
+            topic.course?.addTopic(topic);
+        });
+
+        courseSchedules.forEach(courseSchedule => {
+            courseSchedule.course?.addSchedule(courseSchedule);
+        });
+
+        inscriptions.forEach(inscription => {
+            inscription.courseSchedule?.addInscription(inscription);
+        });
+
+        rates.forEach(rate => {
+            rate.inscription?.addRate(rate);
+        });
+
         return {
             identificationTypes,
             cities,
