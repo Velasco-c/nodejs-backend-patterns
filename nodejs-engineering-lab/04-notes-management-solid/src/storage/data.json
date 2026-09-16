@@ -1,0 +1,54 @@
+{
+    "identificationTypes": [
+        {
+            "id": 1,
+            "code": "DPI",
+            "name": "Documento Personal de Identificación",
+            "description": "Documento de identificación guatemalteco"
+        },
+        {
+            "id": 2,
+            "code": "C01",
+            "name": "DPI",
+            "description": "Numero de Identifiacion Personal"
+        }
+    ],
+    "cities": [
+        {
+            "id": 1,
+            "code": "GUA",
+            "name": "Guatemala"
+        }
+    ],
+    "students": [
+        {
+            "id": 1,
+            "code": "STU-001",
+            "firstName": "Carlos",
+            "lastName": "Velasco",
+            "identificationTypeId": 1,
+            "identificationNumber": "1234567890101",
+            "gender": "M",
+            "birthdate": "2000-01-01",
+            "email": "carlos@example.com",
+            "address": "Ciudad de Guatemala",
+            "cityId": 1
+        }
+    ],
+    "teachers": [],
+    "courses": [
+        {
+            "id": 1,
+            "code": "NODE-001",
+            "description": "Node.js Backend",
+            "intensity": 40,
+            "weight": 1,
+            "active": true
+        }
+    ],
+    "classrooms": [],
+    "topics": [],
+    "courseSchedules": [],
+    "inscriptions": [],
+    "rates": []
+}
